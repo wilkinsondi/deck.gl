@@ -22,6 +22,7 @@ import './imports-spec';
 import './core';
 import './layers';
 import './json';
+import './core-layers';
 
 // TODO - Tests currently only work in browser
 if (typeof document !== 'undefined') {
