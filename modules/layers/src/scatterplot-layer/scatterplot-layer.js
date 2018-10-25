@@ -22,6 +22,7 @@ import {Layer} from '@deck.gl/core';
 import GL from 'luma.gl/constants';
 import {Model, Geometry, fp64} from 'luma.gl';
 const {fp64LowPart} = fp64;
+import {Matrix4} from 'math.gl';
 
 import vs from './scatterplot-layer-vertex.glsl';
 import fs from './scatterplot-layer-fragment.glsl';
@@ -88,14 +89,27 @@ export default class ScatterplotLayer extends Layer {
   }
 
   draw({uniforms}) {
-    const {radiusScale, radiusMinPixels, radiusMaxPixels, outline, strokeWidth} = this.props;
+    const {
+      radiusScale,
+      radiusMinPixels,
+      radiusMaxPixels,
+      outline,
+      strokeWidth,
+      highlightScaleFactor = 1.0
+    } = this.props;
+
     this.state.model.render(
       Object.assign({}, uniforms, {
         outline: outline ? 1 : 0,
         strokeWidth,
         radiusScale,
         radiusMinPixels,
-        radiusMaxPixels
+        radiusMaxPixels,
+        uScaleMatrix: new Matrix4().scale([
+          highlightScaleFactor,
+          highlightScaleFactor,
+          highlightScaleFactor * 2
+        ])
       })
     );
   }

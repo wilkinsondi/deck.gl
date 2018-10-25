@@ -22,6 +22,7 @@ import {Layer, log} from '@deck.gl/core';
 import GL from 'luma.gl/constants';
 import {Model, CylinderGeometry, fp64} from 'luma.gl';
 const {fp64LowPart} = fp64;
+import {Matrix4} from 'math.gl';
 
 import vs from './hexagon-cell-layer-vertex.glsl';
 import fs from './hexagon-cell-layer-fragment.glsl';
@@ -188,7 +189,7 @@ export default class HexagonCellLayer extends Layer {
   }
 
   draw({uniforms}) {
-    const {elevationScale, extruded, coverage} = this.props;
+    const {elevationScale, extruded, coverage, highlightScaleFactor} = this.props;
     const {radius, angle} = this.state;
 
     this.state.model.render(
@@ -197,7 +198,8 @@ export default class HexagonCellLayer extends Layer {
         angle,
         extruded,
         coverage,
-        elevationScale
+        elevationScale,
+        uScaleMatrix: new Matrix4().scale([1, 1, highlightScaleFactor * 2])
       })
     );
   }

@@ -85,7 +85,8 @@ const defaultProps = {
   // Selection/Highlighting
   highlightedObjectIndex: null,
   autoHighlight: false,
-  highlightColor: {type: 'color', value: [0, 0, 128, 128]}
+  highlightColor: {type: 'color', value: [0, 0, 128, 128]},
+  highlightScaleFactor: {type: 'number', min: 1, max: 10, value: 1}
 };
 
 export default class Layer extends Component {

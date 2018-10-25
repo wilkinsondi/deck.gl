@@ -38,6 +38,7 @@ uniform float angle;
 uniform float extruded;
 uniform float coverage;
 uniform float elevationScale;
+uniform mat4 uScaleMatrix;
 
 // Result
 varying vec4 vColor;
@@ -54,9 +55,19 @@ void main(void) {
   // cylindar gemoetry height are between -0.5 to 0.5, transform it to between 0, 1
   float elevation = 0.0;
 
+  vec3 scaledPosition = positions;
+  // if (isVertexPicked(instancePickingColors)) {
+  //   vec4 tempPosition = uScaleMatrix * vec4(scaledPosition, 1.0);
+  //   scaledPosition = tempPosition.xyz / tempPosition.w;
+  // }
+
+
   if (extruded > 0.5) {
-    elevation = instanceElevations * (positions.z + 0.5) *
+    elevation = instanceElevations * (scaledPosition.z + 0.5) *
       ELEVATION_SCALE * elevationScale;
+    if (isVertexPicked(instancePickingColors)) {
+      elevation *= 1.5;
+    }  
   }
 
   // if ahpha == 0.0 or z < 0.0, do not render element
@@ -66,7 +77,9 @@ void main(void) {
   // project center of hexagon
   vec3 centroidPosition = vec3(instancePositions, elevation);
   vec2 centroidPosition64xyLow = instancePositions64xyLow;
-  vec3 offset = vec3(rotationMatrix * positions.xy * dotRadius, 0.);
+
+
+  vec3 offset = vec3(rotationMatrix * scaledPosition.xy * dotRadius, 0.);
 
   vec4 position_worldspace;
   gl_Position = project_position_to_clipspace(centroidPosition, centroidPosition64xyLow, offset, position_worldspace);

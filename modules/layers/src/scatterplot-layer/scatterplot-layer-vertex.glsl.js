@@ -35,6 +35,7 @@ uniform float radiusMinPixels;
 uniform float radiusMaxPixels;
 uniform float outline;
 uniform float strokeWidth;
+uniform mat4 uScaleMatrix;
 
 varying vec4 vColor;
 varying vec2 unitPosition;
@@ -56,7 +57,13 @@ void main(void) {
   // 0 - solid circle, 1 - stroke with lineWidth=0
   innerUnitRadius = outline * (1.0 - strokeWidth / outerRadiusPixels);
 
-  vec3 offset = positions * outerRadiusPixels;
+  vec3 scaledPosition = positions;
+  if (isVertexPicked(instancePickingColors)) {
+    vec4 tempPosition = uScaleMatrix * vec4(scaledPosition, 1.0);
+    scaledPosition = tempPosition.xyz / tempPosition.w;
+  }
+
+  vec3 offset = scaledPosition * outerRadiusPixels;
   gl_Position = project_position_to_clipspace(instancePositions, instancePositions64xyLow, offset);
 
   // Apply opacity to instance color, or return instance picking color
