@@ -13,7 +13,7 @@ const OFFSET = {
 };
 
 // Note: above wiki page invertes white/black dots for generating the code, we don't
-const CODE_OFFSET_MAP = {
+const ISOLINES_CODE_OFFSET_MAP = {
   0: [],
   1: [[OFFSET.W, OFFSET.S]],
   2: [[OFFSET.S, OFFSET.E]],
@@ -31,6 +31,23 @@ const CODE_OFFSET_MAP = {
   14: [[OFFSET.W, OFFSET.S]],
   15: []
 };
+
+// Utility methods
+
+function getVertexCode({weight, threshold}) {
+  // threshold must be a single value or a range (array of size 2)
+  assert(Number.isFinite(threshold) || (Array.isArray(threshold) && threshold.length > 1));
+
+  // Iso-bands
+  if (Array.isArray(threshold)) {
+      if (weight < threshold[0]) {
+        return 0;
+      }
+      return weight <= threshold[1] ? 1 : 2;
+  }
+  // Iso-lines
+  return weight >= threshold ? 1 : 0;
+}
 
 // Returns marching square code for given cell
 /* eslint-disable complexity */
@@ -55,16 +72,12 @@ export function getCode(opts) {
   const isTopBoundary = y >= height - 1;
 
   const top =
-    isLeftBoundary || isTopBoundary ? 0 : cellWeights[(y + 1) * width + x] - threshold >= 0 ? 1 : 0;
+    isLeftBoundary || isTopBoundary ? 0 : getVertexCode({weight: cellWeights[(y + 1) * width + x], threshold});
   const topRight =
-    isRightBoundary || isTopBoundary
-      ? 0
-      : cellWeights[(y + 1) * width + x + 1] - threshold >= 0
-        ? 1
-        : 0;
-  const right = isRightBoundary ? 0 : cellWeights[y * width + x + 1] - threshold >= 0 ? 1 : 0;
+    isRightBoundary || isTopBoundary ? 0 : getVertexCode({weight: cellWeights[(y + 1) * width + x + 1], threshold});
+  const right = isRightBoundary ? 0 : getVertexCode({weight: cellWeights[y * width + x + 1], threshold});
   const current =
-    isLeftBoundary || isBottomBoundary ? 0 : cellWeights[y * width + x] - threshold >= 0 ? 1 : 0;
+    isLeftBoundary || isBottomBoundary ? 0 : getVertexCode({weight: cellWeights[y * width + x], threshold});
 
   const code = (top << 3) | (topRight << 2) | (right << 1) | current;
 
@@ -77,7 +90,7 @@ export function getCode(opts) {
 // Returns intersection vertices for given cellindex
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
 export function getVertices({gridOrigin, cellSize, x, y, code}) {
-  const offsets = CODE_OFFSET_MAP[code];
+  const offsets = ISOLINES_CODE_OFFSET_MAP[code];
 
   // Reference vertex is at top-right move to top-right corner
   assert(x >= -1);

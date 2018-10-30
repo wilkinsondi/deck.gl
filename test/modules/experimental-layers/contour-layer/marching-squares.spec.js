@@ -5,6 +5,19 @@ const GETCODE_TESTS = [
   {
     cellWeights: [5, 5, 5, 10],
     code: 4
+    /*
+    ---------
+    |   |   |
+    | 5 *10 |
+    |   |   |
+    ----#-*--
+    |   |   |
+    | 5 | 5 |
+    |   |   |
+    ---------
+    // # is reference vertex
+    // * are intersection points for code#4 (North and East with reference to #)
+    */
   },
   {
     cellWeights: [5, 5, 5, 5],
