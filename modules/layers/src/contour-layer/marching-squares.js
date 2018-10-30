@@ -166,10 +166,10 @@ function getVertexCode({weight, threshold}) {
 
   // Iso-bands
   if (Array.isArray(threshold)) {
-      if (weight < threshold[0]) {
-        return 0;
-      }
-      return weight <= threshold[1] ? 1 : 2;
+    if (weight < threshold[0]) {
+      return 0;
+    }
+    return weight <= threshold[1] ? 1 : 2;
   }
   // Iso-lines
   return weight >= threshold ? 1 : 0;
@@ -203,7 +203,7 @@ export function getCode(opts) {
 
   // TOP
   if (isLeftBoundary || isTopBoundary) {
-    codes.top = 0
+    codes.top = 0;
   } else {
     weights.top = cellWeights[(y + 1) * width + x];
     codes.top = getVertexCode({weight: weights.top, threshold});
@@ -244,12 +244,12 @@ export function getCode(opts) {
   if (!isBoundary) {
     assert(
       Number.isFinite(weights.top) &&
-      Number.isFinite(weights.topRight) &&
-      Number.isFinite(weights.right) &&
-      Number.isFinite(weights.current)
+        Number.isFinite(weights.topRight) &&
+        Number.isFinite(weights.right) &&
+        Number.isFinite(weights.current)
     );
     meanCode = getVertexCode({
-      weight: (weights.top + weights.topRight + weights.right + weights.current)/ 4,
+      weight: (weights.top + weights.topRight + weights.right + weights.current) / 4,
       threshold
     });
   }
@@ -292,6 +292,4 @@ export function getVertices({gridOrigin, cellSize, x, y, code, meanCode}) {
   return vertices;
 }
 
-export function generateIsoBands(opts) {
-
-}
+export function generateIsoBands(opts) {}
