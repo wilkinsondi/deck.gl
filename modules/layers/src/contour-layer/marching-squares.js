@@ -45,6 +45,119 @@ const ISOLINES_CODE_OFFSET_MAP = {
   15: []
 };
 
+const ISOBANDS_CODE_OFFSET_MAP = {
+  // Follows the same order as in above mentioned wiki page.
+  // Each case has its code on first commented line // T,TR,R,C
+  // where T: Top, TR: Top-right, R: Right and C: current, each will be either 0, 1 or 2
+  // final code is binary represenation of above code , where takes 2 digits
+  // for example:  code 2-2-2-1 => 10-10-10-01 => 10101001 => 169
+
+  // no contours
+  // 0000
+  0: [],
+  170: [], // 2222
+
+  // single triangle
+
+  // 2221
+  169: [[OFFSET.C, OFFSET.N, OFFSET.E]]
+  // 2212
+  // 166:
+  // 2122
+  // 1222
+  // 0001
+  // 0010
+  // 0100
+  // 1000
+
+  // single trapezoid
+  // 2220
+  // 2202
+  // 2022
+  // 0222
+  // 0002
+  // 0020
+  // 0200
+  // 2000
+
+  // single rectangle
+  // 0011
+  // 0110
+  // 1100
+  // 1001
+  // 2211
+  // 2112
+  // 1122
+  // 1221
+  // 2200
+  // 2002
+  // 0022
+  // 0220
+
+  // single square
+  // 1111
+
+  // single pentagon
+  // 1211
+  // 2111
+  // 1112
+  // 1121
+  // 1011
+  // 0111
+  // 1110
+  // 1101
+  // 1200
+  // 0120
+  // 0012
+  // 2001
+  // 1022
+  // 2102
+  // 2210
+  // 0221
+  // 1002
+  // 2100
+  // 0210
+  // 0021
+  // 1220
+  // 0122
+  // 2012
+  // 2201
+
+  // single hexagon
+  // 0211
+  // 2110
+  // 1102
+  // 1021
+  // 2011
+  // 0112
+  // 1120
+  // 1201
+  // 2101
+  // 0121
+  // 1012
+  // 1210
+
+  // 6-sided polygons based on mean weight
+  // 0101
+  // 1010
+  // 2121
+  // 1212
+
+  // 7-sided polygons based on mean weight
+  // 2120
+  // 2021
+  // 1202
+  // 0212
+  // 0102
+  // 0201
+  // 1020
+  // 2010
+
+  // 8-sided polygons based on mean weight
+  // 2020
+  // 0202
+};
+
 // Utility methods
 
 function getVertexCode({weight, threshold}) {
@@ -177,4 +290,8 @@ export function getVertices({gridOrigin, cellSize, x, y, code, meanCode}) {
   });
 
   return vertices;
+}
+
+export function generateIsoBands(opts) {
+
 }
