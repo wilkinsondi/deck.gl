@@ -6,25 +6,38 @@ import {log} from '@deck.gl/core';
 // Table to map code to the intersection offsets
 // All offsets are relative to the center of marching cell (which is top right corner of grid-cell)
 const OFFSET = {
-  N: [0, 0.5],
-  E: [0.5, 0],
-  S: [0, -0.5],
-  W: [-0.5, 0]
+  N: [0, 0.5], // NORTH
+  E: [0.5, 0], // EAST
+  S: [0, -0.5], // SOUTH
+  W: [-0.5, 0], // WEST
+  C: [0, 0] // CURRENT
 };
 
 // Note: above wiki page invertes white/black dots for generating the code, we don't
 const ISOLINES_CODE_OFFSET_MAP = {
+  // key is equal to the code of 4 vertices (invert the code specified in wiki)
+  // value can be an array or an Object
+  // Array : [line1] or [line1, line2], where each line is [start-point, end-point], and each point is [x, y]
+  // Object : to handle saddle cases, whos output depends on mean value of all 4 corners
+  //  key: code of mean value (0 or 1)
+  //  value: Array , as above defines one or two line segments
   0: [],
   1: [[OFFSET.W, OFFSET.S]],
   2: [[OFFSET.S, OFFSET.E]],
   3: [[OFFSET.W, OFFSET.E]],
   4: [[OFFSET.N, OFFSET.E]],
-  5: [[OFFSET.W, OFFSET.N], [OFFSET.S, OFFSET.E]],
+  5: {
+    0: [[OFFSET.W, OFFSET.N], [OFFSET.S, OFFSET.E]],
+    1: [[OFFSET.W, OFFSET.S], [OFFSET.N, OFFSET.E]]
+  },
   6: [[OFFSET.N, OFFSET.S]],
   7: [[OFFSET.W, OFFSET.N]],
   8: [[OFFSET.W, OFFSET.N]],
   9: [[OFFSET.N, OFFSET.S]],
-  10: [[OFFSET.W, OFFSET.S], [OFFSET.N, OFFSET.E]],
+  10: {
+    0: [[OFFSET.W, OFFSET.S], [OFFSET.N, OFFSET.E]],
+    1: [[OFFSET.W, OFFSET.N], [OFFSET.S, OFFSET.E]]
+  },
   11: [[OFFSET.N, OFFSET.E]],
   12: [[OFFSET.W, OFFSET.E]],
   13: [[OFFSET.S, OFFSET.E]],
@@ -50,7 +63,7 @@ function getVertexCode({weight, threshold}) {
 }
 
 // Returns marching square code for given cell
-/* eslint-disable complexity */
+/* eslint-disable complexity, max-statements*/
 export function getCode(opts) {
   // Assumptions
   // Origin is on bottom-left , and X increase to right, Y to top
@@ -70,27 +83,79 @@ export function getCode(opts) {
   const isRightBoundary = x >= width - 1;
   const isBottomBoundary = y < 0;
   const isTopBoundary = y >= height - 1;
+  const isBoundary = isLeftBoundary || isRightBoundary || isBottomBoundary || isTopBoundary;
 
-  const top =
-    isLeftBoundary || isTopBoundary ? 0 : getVertexCode({weight: cellWeights[(y + 1) * width + x], threshold});
-  const topRight =
-    isRightBoundary || isTopBoundary ? 0 : getVertexCode({weight: cellWeights[(y + 1) * width + x + 1], threshold});
-  const right = isRightBoundary ? 0 : getVertexCode({weight: cellWeights[y * width + x + 1], threshold});
-  const current =
-    isLeftBoundary || isBottomBoundary ? 0 : getVertexCode({weight: cellWeights[y * width + x], threshold});
+  const weights = {};
+  const codes = {};
 
+  // TOP
+  if (isLeftBoundary || isTopBoundary) {
+    codes.top = 0
+  } else {
+    weights.top = cellWeights[(y + 1) * width + x];
+    codes.top = getVertexCode({weight: weights.top, threshold});
+  }
+
+  // TOP-RIGHT
+  if (isRightBoundary || isTopBoundary) {
+    codes.topRight = 0;
+  } else {
+    weights.topRight = cellWeights[(y + 1) * width + x + 1];
+    codes.topRight = getVertexCode({weight: weights.topRight, threshold});
+  }
+
+  // RIGHT
+  if (isRightBoundary) {
+    codes.right = 0;
+  } else {
+    weights.right = cellWeights[y * width + x + 1];
+    codes.right = getVertexCode({weight: weights.right, threshold});
+  }
+
+  // CURRENT
+  if (isLeftBoundary || isBottomBoundary) {
+    codes.current = 0;
+  } else {
+    weights.current = cellWeights[y * width + x];
+    codes.current = getVertexCode({weight: weights.current, threshold});
+  }
+
+  const {top, topRight, right, current} = codes;
   const code = (top << 3) | (topRight << 2) | (right << 1) | current;
-
   assert(code >= 0 && code < 16);
 
-  return code;
+  let meanCode = 0;
+  // meanCode is only needed for saddle cases, and they should
+  // only occur when we are not processing a cell on boundary
+  // because when on a boundary either, bottom-row, top-row, left-column or right-column will have both 0 codes
+  if (!isBoundary) {
+    assert(
+      Number.isFinite(weights.top) &&
+      Number.isFinite(weights.topRight) &&
+      Number.isFinite(weights.right) &&
+      Number.isFinite(weights.current)
+    );
+    meanCode = getVertexCode({
+      weight: (weights.top + weights.topRight + weights.right + weights.current)/ 4,
+      threshold
+    });
+  }
+
+  return {code, meanCode};
 }
-/* eslint-enable complexity */
+/* eslint-enable complexity, max-statements*/
 
 // Returns intersection vertices for given cellindex
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
-export function getVertices({gridOrigin, cellSize, x, y, code}) {
-  const offsets = ISOLINES_CODE_OFFSET_MAP[code];
+export function getVertices({gridOrigin, cellSize, x, y, code, meanCode}) {
+  let offsets = ISOLINES_CODE_OFFSET_MAP[code];
+
+  // handle saddle cases
+  if (!Array.isArray(offsets)) {
+    offsets = offsets[meanCode];
+  }
+
+  assert(Array.isArray(offsets));
 
   // Reference vertex is at top-right move to top-right corner
   assert(x >= -1);

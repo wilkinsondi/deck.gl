@@ -35,6 +35,13 @@ const GETCODE_TESTS = [
   // non zero cellIndex
   {
     cellWeights: [
+      // ----------------
+      // |  5 | 10 | 10 | => row-2
+      // ----------------
+      // | 5  |  5 |  5 | => row-1
+      // ----------------
+      // | 5  |  5 |  5 | => row-0
+      // ---------------
       // row-0
       5,
       5,
@@ -72,7 +79,52 @@ const GETCODE_TESTS = [
     x: 0,
     y: 1,
     code: 9
+  },
+
+  // saddle cases
+  {
+    cellWeights: [
+      // row-0
+      5,
+      5,
+      5,
+      // row-1
+      5,
+      1,
+      6,
+      // row-2
+      5,
+      6,
+      1
+    ],
+    gridSize: [3, 3],
+    x: 1,
+    y: 1,
+    code: 10,
+    meanCode: 0
+  },
+  {
+    cellWeights: [
+      // row-0
+      5,
+      5,
+      5,
+      // row-1
+      5,
+      5,
+      10,
+      // row-2
+      5,
+      10,
+      5
+    ],
+    gridSize: [3, 3],
+    x: 1,
+    y: 1,
+    code: 10,
+    meanCode: 1
   }
+
 ];
 
 const GETVERTEX_TESTS = [
@@ -113,6 +165,26 @@ const GETVERTEX_TESTS = [
     y: 1,
     vertices: [[110, 250], [110, 230]],
     gridSize: [3, 3]
+  },
+
+  // saddle cases
+  {
+    gridOrigin: [100, 200],
+    code: 5,
+    meanCode: 0,
+    x: 0,
+    y: 0,
+    vertices: [[105, 220], [110, 230], [110, 210], [115, 220]],
+    gridSize: [3, 3]
+  },
+  {
+    gridOrigin: [100, 200],
+    code: 5,
+    meanCode: 1,
+    x: 0,
+    y: 0,
+    vertices: [[105, 220], [110, 210], [110, 230], [115, 220]],
+    gridSize: [3, 3]
   }
 ];
 
@@ -122,7 +194,7 @@ test('MarchingSquares#getCode', t => {
   const y = 0;
   const gridSize = [2, 2];
   GETCODE_TESTS.forEach(testCase => {
-    const code = getCode({
+    const {code, meanCode} = getCode({
       cellWeights: testCase.cellWeights,
       threshold,
       x: testCase.x || x,
@@ -131,6 +203,10 @@ test('MarchingSquares#getCode', t => {
       height: testCase.gridSize ? testCase.gridSize[1] : gridSize[1]
     });
     t.equals(code, testCase.code, `Code: expected: ${testCase.code}, actual: ${code}`);
+    if (testCase.meanCode) {
+      // if meanCode needed for this case
+      t.equals(meanCode, testCase.meanCode, `manCoode: expected: ${testCase.meanCode}, actual: ${meanCode}`);
+    }
   });
   t.end();
 });
@@ -145,7 +221,8 @@ test('MarchingSquares#getVertices', t => {
       x: testCase.x || x,
       y: testCase.y || y,
       cellSize,
-      code: testCase.code
+      code: testCase.code,
+      meanCode: testCase.meanCode
     });
     t.deepEquals(
       vertices,
