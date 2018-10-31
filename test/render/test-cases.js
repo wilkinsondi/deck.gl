@@ -246,9 +246,12 @@ export const TEST_CASES = [
         cellSize: 40,
         opacity: 1,
         contours: [
-          {threshold: 1, color: [50, 50, 50]},
-          {threshold: 2, color: [100, 100, 100]},
-          {threshold: 3, color: [150, 150, 150]}
+          // {threshold: 1, color: [50, 50, 50]},
+          // {threshold: 2, color: [100, 100, 100]},
+          // {threshold: 3, color: [150, 150, 150]}
+
+          {threshold: [0, 3]}
+          // {threshold: 1, color: [50, 50, 50]}
         ],
         gpuAggregation: true
       })
@@ -1203,4 +1206,4 @@ export const TEST_CASES = [
     referenceImageUrl: './test/render/golden-images/contour-lnglat.png',
     ignoreGPUs: [`Intel`]
   }
-];
+].filter(testCase => ['contour-infoviz'].includes(testCase.name));

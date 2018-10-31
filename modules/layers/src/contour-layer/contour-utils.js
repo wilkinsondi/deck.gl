@@ -2,6 +2,7 @@ import * as MarchingSquares from './marching-squares';
 import assert from 'assert';
 
 // Given all the cell weights, generates contours for each threshold.
+/* eslint-disable max-depth */
 export function generateContours({
   thresholds,
   colors,
@@ -11,6 +12,7 @@ export function generateContours({
   cellSize
 }) {
   const contourSegments = [];
+  const contourTriangles = [];
   const width = gridSize[0];
   const height = gridSize[1];
 
@@ -26,8 +28,7 @@ export function generateContours({
           width,
           height
         });
-        // Get the intersection vertices based on MarchingSquares code.
-        const vertices = MarchingSquares.getVertices({
+        const opts = {
           gridOrigin,
           cellSize,
           x,
@@ -36,18 +37,29 @@ export function generateContours({
           height,
           code,
           meanCode
-        });
-        // We should always get even number of vertices
-        assert(vertices.length % 2 === 0);
-        for (let i = 0; i < vertices.length; i += 2) {
-          contourSegments.push({
-            start: vertices[i],
-            end: vertices[i + 1],
+        };
+        if (Array.isArray(threshold)) {
+          const triangles = MarchingSquares.getTriangles(opts);
+          contourTriangles.push({
+            vertices: triangles,
             threshold
           });
+        } else {
+          // Get the intersection vertices based on MarchingSquares code.
+          const vertices = MarchingSquares.getVertices(opts);
+          // We should always get even number of vertices
+          assert(vertices.length % 2 === 0);
+          for (let i = 0; i < vertices.length; i += 2) {
+            contourSegments.push({
+              start: vertices[i],
+              end: vertices[i + 1],
+              threshold
+            });
+          }
         }
       }
     }
   });
-  return contourSegments;
+  return {contourSegments, contourTriangles};
 }
+/* eslint-enable max-depth */

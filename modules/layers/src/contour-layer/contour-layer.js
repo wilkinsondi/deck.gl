@@ -24,6 +24,7 @@ import {
   _pointToDensityGridData as pointToDensityGridData
 } from '@deck.gl/core';
 import {LineLayer} from '@deck.gl/layers';
+import {_SolidPolygonLayer as SolidPolygonLayer} from '@deck.gl/layers';
 
 import {generateContours} from './contour-utils';
 
@@ -50,7 +51,7 @@ export default class ContourLayer extends CompositeLayer {
       shaderCache: this.context.shaderCache
     };
     this.state = {
-      contourData: [],
+      contourData: {},
       gridAggregator: new GPUGridAggregator(gl, options)
     };
   }
@@ -74,12 +75,12 @@ export default class ContourLayer extends CompositeLayer {
     return LineLayer;
   }
 
-  getSubLayerProps() {
+  getLineLayerProps() {
     const {fp64} = this.props;
 
     return super.getSubLayerProps({
       id: 'contour-line-layer',
-      data: this.state.contourData,
+      data: this.state.contourData.contourSegments,
       fp64,
       getSourcePosition: d => d.start,
       getTargetPosition: d => d.end,
@@ -88,10 +89,26 @@ export default class ContourLayer extends CompositeLayer {
     });
   }
 
-  renderLayers() {
-    const SubLayerClass = this.getSubLayerClass();
+  getSolidPolygonLayerProps() {
+    const {fp64} = this.props;
 
-    return new SubLayerClass(this.getSubLayerProps());
+    return super.getSubLayerProps({
+      id: 'contour-solid-polygon-layer',
+      data: this.state.contourData.contourTriangles,
+      fp64,
+      getPolygon: d => d.vertices
+    });
+  }
+
+  renderLayers() {
+    // const SubLayerClass = this.getSubLayerClass();
+    const {contourSegments, contourTriangles} = this.state.contourData;
+    const hasIsoLines = contourSegments && contourSegments.length > 0;
+    const hasIsoBands = contourTriangles && contourTriangles.length > 0;
+
+    const lineLayer = hasIsoLines && new LineLayer(this.getLineLayerProps());
+    const solidPolygonLayer = hasIsoBands && new SolidPolygonLayer(this.getSolidPolygonLayerProps());
+    return [lineLayer, solidPolygonLayer];
   }
 
   // Private
@@ -138,6 +155,7 @@ export default class ContourLayer extends CompositeLayer {
       cellSize
     });
 
+    // contourData contains both iso-lines and iso-bands if requested.
     this.setState({contourData});
   }
 
