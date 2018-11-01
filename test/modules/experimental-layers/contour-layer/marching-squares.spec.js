@@ -272,6 +272,7 @@ const GETCODE_TESTS = [
 ];
 
 const GETVERTEX_TESTS = [
+  // ISO-LINES
   {
     gridOrigin: [100, 200],
     code: 4,
@@ -329,7 +330,16 @@ const GETVERTEX_TESTS = [
     y: 0,
     vertices: [[105, 220], [110, 210], [110, 230], [115, 220]],
     gridSize: [3, 3]
-  }
+  },
+
+  // ISO-LINES
+  {
+    gridOrigin: [100, 200],
+    code: 16,
+    // REF 
+    vertices: [[110, 230], [115, 220]]
+  },
+
 ];
 
 test('MarchingSquares#getCode', t => {
