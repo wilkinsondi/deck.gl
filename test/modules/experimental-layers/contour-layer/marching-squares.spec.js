@@ -2,6 +2,7 @@ import test from 'tape-catch';
 import {getCode, getVertices} from '@deck.gl/layers/contour-layer/marching-squares';
 
 const GETCODE_TESTS = [
+  // ISO LINES
   {
     cellWeights: [5, 5, 5, 10],
     code: 4
@@ -123,7 +124,150 @@ const GETCODE_TESTS = [
     y: 1,
     code: 10,
     meanCode: 1
+  },
+
+  // ISO BANDS
+  {
+    cellWeights: [5, 5, 5, 3],
+    code: 154, // 2122
+    threshold: [2, 4]
+    /*
+    ---------
+    |   |   |
+    | 5 * 3 |
+    |   |   |
+    ----#-*--
+    |   |   |
+    | 5 | 5 |
+    |   |   |
+    ---------
+    // # is reference vertex
+    // * are intersection points for code#4 (North and East with reference to #)
+    */
+  },
+  {
+    cellWeights: [5, 5, 5, 5],
+    code: 170,
+    threshold: [2, 4]
+  },
+  // single triangle case
+  {
+    cellWeights: [2, 5, 5, 5],
+    threshold: [2, 4],
+    code: 169
+  },
+  // single trapezoid case
+  {
+    cellWeights: [10, 1, 10, 10],
+    threshold: [2, 9],
+    code: 162
+  },
+  // single rectangle case
+  {
+    // 1122
+    cellWeights: [10, 10, 2, 9],
+    threshold: [2, 9],
+    code: 90
+  },
+  // single hexagon case
+  {
+    cellWeights: [3, 0, 9, 30],
+    threshold: [2, 9],
+    code: 97
   }
+  //
+  // // non zero cellIndex
+  // {
+  //   cellWeights: [
+  //     // ----------------
+  //     // |  5 | 10 | 10 | => row-2
+  //     // ----------------
+  //     // | 5  |  5 |  5 | => row-1
+  //     // ----------------
+  //     // | 5  |  5 |  5 | => row-0
+  //     // ---------------
+  //     // row-0
+  //     5,
+  //     5,
+  //     5,
+  //     // row-1
+  //     5,
+  //     5,
+  //     5,
+  //     // row-2
+  //     5,
+  //     10,
+  //     10
+  //   ],
+  //   gridSize: [3, 3],
+  //   x: 1,
+  //   y: 1,
+  //   code: 12
+  // },
+  // {
+  //   cellWeights: [
+  //     // row-0
+  //     5,
+  //     5,
+  //     5,
+  //     // row-1
+  //     10,
+  //     5,
+  //     5,
+  //     // row-2
+  //     10,
+  //     5,
+  //     5
+  //   ],
+  //   gridSize: [3, 3],
+  //   x: 0,
+  //   y: 1,
+  //   code: 9
+  // },
+  //
+  // // saddle cases
+  // {
+  //   cellWeights: [
+  //     // row-0
+  //     5,
+  //     5,
+  //     5,
+  //     // row-1
+  //     5,
+  //     1,
+  //     6,
+  //     // row-2
+  //     5,
+  //     6,
+  //     1
+  //   ],
+  //   gridSize: [3, 3],
+  //   x: 1,
+  //   y: 1,
+  //   code: 10,
+  //   meanCode: 0
+  // },
+  // {
+  //   cellWeights: [
+  //     // row-0
+  //     5,
+  //     5,
+  //     5,
+  //     // row-1
+  //     5,
+  //     5,
+  //     10,
+  //     // row-2
+  //     5,
+  //     10,
+  //     5
+  //   ],
+  //   gridSize: [3, 3],
+  //   x: 1,
+  //   y: 1,
+  //   code: 10,
+  //   meanCode: 1
+  // },
 
 ];
 
@@ -196,7 +340,7 @@ test('MarchingSquares#getCode', t => {
   GETCODE_TESTS.forEach(testCase => {
     const {code, meanCode} = getCode({
       cellWeights: testCase.cellWeights,
-      threshold,
+      threshold: testCase.threshold || threshold,
       x: testCase.x || x,
       y: testCase.y || y,
       width: testCase.gridSize ? testCase.gridSize[0] : gridSize[0],

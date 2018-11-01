@@ -3,6 +3,11 @@
 import assert from 'assert';
 import {log} from '@deck.gl/core';
 
+export const CONTOUR_TYPE = {
+  ISO_LINES: 1,
+  ISO_BANDS: 2
+};
+
 // Table to map code to the intersection offsets
 // All offsets are relative to the center of marching cell (which is top right corner of grid-cell, and center of marching-square)
 const HALF = 0.5;
@@ -30,11 +35,11 @@ const OFFSET = {
   W6: [-TWO3RD, 0],
 
   // CORNERS
-  TODO: WE NEED all combinations like N3E5, N6E5 etc
-  NE: [HALF, HALF],
-  NW: [HALF, -HALF],
-  SE: [-HALF, HALF],
-  SW: [-HALF, -HALF]
+  // TODO: WE NEED all combinations like N3E5, N6E5 etc
+  N5E5: [HALF, HALF],
+  N5W5: [HALF, -HALF],
+  S5E5: [-HALF, HALF],
+  S5W5: [-HALF, -HALF]
 };
 
 // Note: above wiki page invertes white/black dots for generating the code, we don't
@@ -86,21 +91,21 @@ const ISOBANDS_CODE_OFFSET_MAP = {
   // single triangle
 
   // 2221
-  169: [[OFFSET.S5, OFFSET.SW, OFFSET.W5]],
+  169: [[OFFSET.S5, OFFSET.S5W5, OFFSET.W5]],
   // 2212
-  166: [[OFFSET.C, OFFSET.W, OFFSET.N5]],
+  166: [[OFFSET.E5, OFFSET.S5E5, OFFSET.S5]],
   // 2122
-  154: [[OFFSET.C, OFFSET.S, OFFSET.W]],
+  154: [[OFFSET.N5, OFFSET.N5E5, OFFSET.E5]],
   // 1222
-  106: [[OFFSET.C, OFFSET.E, OFFSET.S]],
+  106: [[OFFSET.N5W5, OFFSET.N5, OFFSET.W5]],
   // 0001
-  1: [[OFFSET.C, OFFSET.N5, OFFSET.E]],
+  1: [[OFFSET.S5, OFFSET.S5W5, OFFSET.W5]],
   // 0010
-  4: [[OFFSET.C, OFFSET.W, OFFSET.N5]],
+  4: [[OFFSET.E5, OFFSET.S5E5, OFFSET.S5]],
   // 0100
-  16: [[OFFSET.C, OFFSET.S, OFFSET.E]],
+  16: [[OFFSET.N5, OFFSET.N5E5, OFFSET.E5]],
   // 1000
-  64: [[OFFSET.C, OFFSET.E, OFFSET.S]],
+  64: [[OFFSET.N5W5, OFFSET.N5, OFFSET.W5]],
 
   // single trapezoid
   // 2220
@@ -120,31 +125,31 @@ const ISOBANDS_CODE_OFFSET_MAP = {
   // 2000
   128: [[OFFSET.E3, OFFSET.E6, OFFSET.S6, OFFSET.S3]],
 
-  // single rectangle
-  // 0011
-  5: [[OFFSET.C, OFFSET.N5, OFFSET.S6, OFFSET.S3]],
-  // 0110
-  20:
-  // 1100
-  80:
-  // 1001
-  65:
-  // 2211
-  165:
-  // 2112
-  150:
-  // 1122
-  90:
-  // 1221
-  105:
-  // 2200
-  160:
-  // 2002
-  130:
-  // 0022
-  10:
-  // 0220
-  40:
+  // // single rectangle
+  // // 0011
+  // 5: [[OFFSET.C, OFFSET.N5, OFFSET.S6, OFFSET.S3]],
+  // // 0110
+  // 20:
+  // // 1100
+  // 80:
+  // // 1001
+  // 65:
+  // // 2211
+  // 165:
+  // // 2112
+  // 150:
+  // // 1122
+  // 90:
+  // // 1221
+  // 105:
+  // // 2200
+  // 160:
+  // // 2002
+  // 130:
+  // // 0022
+  // 10:
+  // // 0220
+  // 40:
 
   // single square
   // 1111
@@ -290,14 +295,14 @@ export function getCode(opts) {
   if (Number.isFinite(threshold)) {
     code = (top << 3) | (topRight << 2) | (right << 1) | current;
     // _HACK-
-    code = 11;
+    // code = 11;
   }
   if (Array.isArray(threshold)) {
     code = (top << 6) | (topRight << 4) | (right << 2) | current;
     // _HACK_
-    code = 169;
+    // code = 169;
   }
-  assert(code > 0);
+  assert(code >= 0);
   // let codeIsValid = false;
   // if (Number.isFinite(threshold)) {
   //   codeIsValid = code >= 0 && code < 16;
@@ -329,7 +334,8 @@ export function getCode(opts) {
 
 // Returns intersection vertices for given cellindex
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
-export function getVertices({gridOrigin, cellSize, x, y, code, meanCode}) {
+export function getVertices(opts) {
+  const {gridOrigin, cellSize, x, y, code, meanCode, type = CONTOUR_TYPE.ISO_LINES} = opts;
   let offsets = ISOLINES_CODE_OFFSET_MAP[code];
   assert(offsets);
   // handle saddle cases
@@ -349,16 +355,51 @@ export function getVertices({gridOrigin, cellSize, x, y, code, meanCode}) {
   const refVertexX = gridOrigin[0] + rX;
   const refVertexY = gridOrigin[1] + rY;
 
-  const vertices = [];
-  offsets.forEach(xyOffsets => {
-    xyOffsets.forEach(offset => {
-      const vX = refVertexX + offset[0] * cellSize[0];
-      const vY = refVertexY + offset[1] * cellSize[1];
-      vertices.push([vX, vY]);
-    });
-  });
+  // offsets format
+  // ISO_LINES: [[1A, 1B], [2A, 2B]],
+  // ISO_BANDS: [[1A, 1B, 1C, ...], [2A, 2B, 2C, ...]],
 
-  return vertices;
+  // vertices format
+
+  // ISO_LINES: [[x1A, y1A], [x1B, y1B], [x2A, x2B], ...],
+
+  // ISO_BANDS:  => confirms to SolidPolygonLayer's simple polygon format
+  //      [
+  //        [[x1A, y1A], [x1B, y1B], [x1C, y1C] ... ],
+  //        ...
+  //      ]
+
+  let results;
+  switch(type) {
+    case CONTOUR_TYPE.ISO_LINES:
+      const vertices = [];
+      offsets.forEach(xyOffsets => {
+        xyOffsets.forEach(offset => {
+          const vX = refVertexX + offset[0] * cellSize[0];
+          const vY = refVertexY + offset[1] * cellSize[1];
+          vertices.push([vX, vY]);
+        });
+      });
+      results = vertices;
+    break;
+    case CONTOUR_TYPE.ISO_BANDS:
+    const polygons = [];
+      offsets.forEach(polygonOffsets => {
+        const polygon = [];
+        polygonOffsets.forEach(xyOffset => {
+          const vX = refVertexX + xyOffset[0] * cellSize[0];
+          const vY = refVertexY + xyOffset[1] * cellSize[1];
+          polygon.push([vX, vY]);
+        });
+        polygons.push(polygon);
+      });
+      results = polygons;
+    break;
+    default:
+      assert(false);
+    break;
+  }
+  return results;
 }
 
 export function getTriangles(opts) {
