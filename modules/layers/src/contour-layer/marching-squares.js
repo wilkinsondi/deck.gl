@@ -42,6 +42,10 @@ const OFFSET = {
   S5W5: [-HALF, -HALF]
 };
 
+const SW_TRIANGLE = [OFFSET.S5, OFFSET.S5W5, OFFSET.W5];
+const SE_TRIANGLE = [OFFSET.E5, OFFSET.S5E5, OFFSET.S5];
+const NE_TRIANGLE = [OFFSET.N5, OFFSET.N5E5, OFFSET.E5];
+const NW_TRIANGLE = [OFFSET.N5W5, OFFSET.N5, OFFSET.W5];
 // Note: above wiki page invertes white/black dots for generating the code, we don't
 const ISOLINES_CODE_OFFSET_MAP = {
   // key is equal to the code of 4 vertices (invert the code specified in wiki)
