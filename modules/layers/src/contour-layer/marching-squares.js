@@ -37,8 +37,8 @@ const OFFSET = {
   // CORNERS
   // TODO: WE NEED all combinations like N3E5, N6E5 etc
   N5E5: [HALF, HALF],
-  N5W5: [HALF, -HALF],
-  S5E5: [-HALF, HALF],
+  N5W5: [-HALF, HALF],
+  S5E5: [HALF, -HALF],
   S5W5: [-HALF, -HALF]
 };
 
@@ -294,13 +294,13 @@ export function getCode(opts) {
   let code = -1;
   if (Number.isFinite(threshold)) {
     code = (top << 3) | (topRight << 2) | (right << 1) | current;
-    // _HACK-
-    // code = 11;
+    // // _HACK-
+    // code = 7;
   }
   if (Array.isArray(threshold)) {
     code = (top << 6) | (topRight << 4) | (right << 2) | current;
-    // _HACK_
-    // code = 169;
+    // // _HACK_
+    // code = 106;
   }
   assert(code >= 0);
   // let codeIsValid = false;
@@ -336,7 +336,19 @@ export function getCode(opts) {
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
 export function getVertices(opts) {
   const {gridOrigin, cellSize, x, y, code, meanCode, type = CONTOUR_TYPE.ISO_LINES} = opts;
-  let offsets = ISOLINES_CODE_OFFSET_MAP[code];
+  let offsets;
+
+  switch(type) {
+    case CONTOUR_TYPE.ISO_LINES:
+      offsets = ISOLINES_CODE_OFFSET_MAP[code];
+    break;
+    case CONTOUR_TYPE.ISO_BANDS:
+      offsets = ISOBANDS_CODE_OFFSET_MAP[code];
+    break;
+    default:
+      assert(false);
+  };
+
   assert(offsets);
   // handle saddle cases
   if (!Array.isArray(offsets)) {

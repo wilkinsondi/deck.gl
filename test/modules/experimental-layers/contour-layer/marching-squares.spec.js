@@ -1,5 +1,5 @@
 import test from 'tape-catch';
-import {getCode, getVertices} from '@deck.gl/layers/contour-layer/marching-squares';
+import {getCode, getVertices, CONTOUR_TYPE} from '@deck.gl/layers/contour-layer/marching-squares';
 
 const GETCODE_TESTS = [
   // ISO LINES
@@ -332,12 +332,13 @@ const GETVERTEX_TESTS = [
     gridSize: [3, 3]
   },
 
-  // ISO-LINES
+  // ISO-BANDS
   {
     gridOrigin: [100, 200],
-    code: 16,
-    // REF 
-    vertices: [[110, 230], [115, 220]]
+    code: 154,
+    // REF
+    vertices: [[[110, 230], [115, 230], [115, 220]]],
+    type: CONTOUR_TYPE.ISO_BANDS
   },
 
 ];
@@ -376,7 +377,8 @@ test('MarchingSquares#getVertices', t => {
       y: testCase.y || y,
       cellSize,
       code: testCase.code,
-      meanCode: testCase.meanCode
+      meanCode: testCase.meanCode,
+      type: testCase.type || CONTOUR_TYPE.ISO_LINES
     });
     t.deepEquals(
       vertices,
