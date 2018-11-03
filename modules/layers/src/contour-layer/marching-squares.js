@@ -54,7 +54,7 @@ const NW_TRIANGLE = [OFFSET.N5W5, OFFSET.W5, OFFSET.N5];
 // Trapezoids
 const SW_TRAPEZOID = [[-HALF, ONE6TH], [-HALF, -ONE6TH], [-ONE6TH, -HALF], [ONE6TH, -HALF]];
 const SE_TRAPEZOID = [[-ONE6TH, -HALF], [ONE6TH, -HALF], [HALF, -ONE6TH], [HALF, ONE6TH]];
-const NE_TRAPEZOID = [[HALF, -ONE6TH], [HALF, ONE6TH], [-ONE6TH, HALF], [ONE6TH, HALF]];
+const NE_TRAPEZOID = [[HALF, -ONE6TH], [HALF, ONE6TH], [ONE6TH, HALF], [-ONE6TH, HALF]];
 const NW_TRAPEZOID = [[-HALF, ONE6TH], [-HALF, -ONE6TH], [ONE6TH, HALF], [-ONE6TH, HALF]];
 
 // Rectangles
@@ -83,6 +83,14 @@ const NW_W_PENTAGON = [OFFSET.N5W5, OFFSET.W5, [-ONE6TH, -HALF], OFFSET.S5, OFFS
 const NE_N_PENTAGON = [[-HALF, ONE6TH], OFFSET.W5, OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
 const SE_E_PENTAGON = [OFFSET.S5, OFFSET.S5E5, OFFSET.E5, [ONE6TH, HALF], OFFSET.N5];
 const SW_S_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, [HALF, -ONE6TH], OFFSET.E5]; // HERE for 0021, right edge , should it stretch from Y: (ONE6TH TO -ONE6TH), instead of Y: (0 to -ONE6TH)
+
+// Hexagon
+const S_HEXAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.E5, [ONE6TH, HALF], [-ONE6TH, HALF]];
+const E_HEXAGON = [[-HALF, ONE6TH], [-HALF, -ONE6TH], OFFSET.S5, OFFSET.S5E5, OFFSET.N5E5, OFFSET.N5];
+const N_HEXAGON = [OFFSET.N5W5, OFFSET.W5, [-ONE6TH, -HALF], [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5];
+const W_HEXAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, [HALF, -ONE6TH], [HALF, ONE6TH], OFFSET.N5];
+const SW_NE_HEXAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const NW_SE_HEXAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.S5, OFFSET.S5E5, OFFSET.E5, OFFSET.N5];
 
 // Note: above wiki page invertes white/black dots for generating the code, we don't
 const ISOLINES_CODE_OFFSET_MAP = {
@@ -268,46 +276,46 @@ const ISOBANDS_CODE_OFFSET_MAP = {
   134: [SE_E_PENTAGON],
 
   // 2201
-  161: [SW_S_PENTAGON]
+  161: [SW_S_PENTAGON],
 
-  // // single hexagon
-  // // 0211
-  // 37:
-  //
-  // // 2110
-  // 148:
-  //
-  // // 1102
-  // 82:
-  //
-  // // 1021
-  // 73:
-  //
-  // // 2011
-  // 133:
-  //
-  // // 0112
-  // 22:
-  //
-  // // 1120
-  // 88:
-  //
-  // // 1201
-  // 97:
-  //
-  // // 2101
-  // 145:
-  //
-  // // 0121
-  // 25:
-  //
-  // // 1012
-  // 70:
-  //
-  // // 1210
-  // 100:
-  //
-  //
+  // single hexagon
+  // 0211
+  37: [S_HEXAGON],
+
+  // 2110
+  148: [E_HEXAGON],
+
+  // 1102
+  82: [N_HEXAGON],
+
+  // 1021
+  73: [W_HEXAGON],
+
+  // 2011
+  133: [S_HEXAGON],
+
+  // 0112
+  22: [E_HEXAGON],
+
+  // 1120
+  88: [N_HEXAGON],
+
+  // 1201
+  97: [W_HEXAGON],
+
+  // 2101
+  145: [SW_NE_HEXAGON],
+
+  // 0121
+  25: [SW_NE_HEXAGON],
+
+  // 1012
+  70: [NW_SE_HEXAGON],
+
+  // 1210
+  100: [NW_SE_HEXAGON]
+
+
   // // 6-sided polygons based on mean weight
   // // 0101
   // 17:
@@ -475,7 +483,21 @@ export function getCode(opts) {
 
 // ----HACK----
 let _hackIndex = 0;
-const _codeArray = Object.keys(ISOBANDS_CODE_OFFSET_MAP).map(x => parseInt(x, 10));
+//const _codeArray = Object.keys(ISOBANDS_CODE_OFFSET_MAP).map(x => parseInt(x, 10));
+// const _codeArray = [];
+// for (const key in ISOBANDS_CODE_OFFSET_MAP) {
+//   _codeArray.push(key);
+// }
+
+const _codeArray = [
+  0, 170,
+  169, 166, 154, 106, 1, 4, 16, 64,
+  168, 162, 138, 42, 2, 8, 32, 128,
+  5, 20, 80, 65, /* 165, 150, 90, 105,*/ 160, 130, /* 10, 40,*/
+  85,
+  101, 149, 86, 89, /* 69, 21, 84, 81,*/ 96, 24, 6, 129, /* 74, 146, 164, 41,*/ 66, 144, 36, 9, /* 104, 26, 134, 161,*/
+  37, 148, 82, 73, /* 133, 22, 88, 97,*/ 145, 25, 70, 100
+]
 // ----HACK----
 
 // Returns intersection vertices for given cellindex
@@ -496,7 +518,7 @@ export function getVertices(opts) {
   };
 
   // -HACK--
-  console.log(`code: ${_codeArray[_hackIndex]} index: ${_hackIndex}`);
+  console.log(`code: ${_codeArray[_hackIndex]} : ${Math.abs(_codeArray[_hackIndex]).toString(4)} index: ${_hackIndex}`);
   offsets = ISOBANDS_CODE_OFFSET_MAP[_codeArray[_hackIndex++]];
   if (_hackIndex >= _codeArray.length) {
     _hackIndex = 0;
