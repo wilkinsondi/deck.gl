@@ -69,10 +69,10 @@ const SN_RECTANGEL = [[-ONE6TH, -HALF], [ONE6TH, -HALF], [ONE6TH, HALF], [-ONE6T
 const SQUARE = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.N5E5];
 
 // Pentagons
-const SW_PENTAGON = [OFFSET.N5W5, OFFSET.S5WE, OFFSET.S5E5, OFFSET.E, OFFSET.N];
-const SE_PENTAGON = [OFFSET.W5, OFFSET.S5WE, OFFSET.S5E5, OFFSET.N5E5, OFFSET.N];
+const SW_PENTAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.E5, OFFSET.N5];
+const SE_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.N5E5, OFFSET.N5];
 const NE_PENTAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.S5, OFFSET.S5E5, OFFSET.N5E5];
-const NW_PENTAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, OFFSET.E, OFFSET.N5E5];
+const NW_PENTAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, OFFSET.E5, OFFSET.N5E5];
 
 const NW_N_PENTAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.E5, [HALF, ONE6TH], OFFSET.N5];
 const NE_E_PENTAGON = [OFFSET.S5, [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
@@ -475,7 +475,7 @@ export function getCode(opts) {
 
 // ----HACK----
 let _hackIndex = 0;
-const _codeArray = Object.keys(ISOLINES_CODE_OFFSET_MAP);
+const _codeArray = Object.keys(ISOBANDS_CODE_OFFSET_MAP).map(x => parseInt(x, 10));
 // ----HACK----
 
 // Returns intersection vertices for given cellindex
@@ -496,8 +496,9 @@ export function getVertices(opts) {
   };
 
   // -HACK--
+  console.log(`code: ${_codeArray[_hackIndex]} index: ${_hackIndex}`);
   offsets = ISOBANDS_CODE_OFFSET_MAP[_codeArray[_hackIndex++]];
-  if (_hackIndex > _codeArray.length) {
+  if (_hackIndex >= _codeArray.length) {
     _hackIndex = 0;
   }
   // -- HACK ---

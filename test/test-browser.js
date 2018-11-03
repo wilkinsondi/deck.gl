@@ -29,7 +29,8 @@ test.onFinish(() => callExposedFunction('testDone', {success: true}));
 test.onFailure(() => callExposedFunction('testDone', {success: false}));
 
 test('deck.gl', t => {
-  require('./modules/index');
-  require('./modules/react');
+  // require('./modules/index');
+  // require('./modules/react');
+  require('./modules/experimental-layers/contour-layer/marching-squares.spec.js');
   t.end();
 });
