@@ -13,6 +13,7 @@ export const CONTOUR_TYPE = {
 const HALF = 0.5;
 const ONE3RD = 0.3
 const TWO3RD = 0.6;
+const ONE6TH = 1/6;
 const OFFSET = {
   // NORTH
   N5: [0, HALF],
@@ -42,10 +43,47 @@ const OFFSET = {
   S5W5: [-HALF, -HALF]
 };
 
-const SW_TRIANGLE = [OFFSET.S5, OFFSET.S5W5, OFFSET.W5];
-const SE_TRIANGLE = [OFFSET.E5, OFFSET.S5E5, OFFSET.S5];
-const NE_TRIANGLE = [OFFSET.N5, OFFSET.N5E5, OFFSET.E5];
-const NW_TRIANGLE = [OFFSET.N5W5, OFFSET.N5, OFFSET.W5];
+// NOTE: vertices are ordered in CCW direction, starting from NW corner
+
+// Triangles
+const SW_TRIANGLE = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5];
+const SE_TRIANGLE = [OFFSET.S5, OFFSET.S5E5, OFFSET.E5];
+const NE_TRIANGLE = [OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const NW_TRIANGLE = [OFFSET.N5W5, OFFSET.W5, OFFSET.N5];
+
+// Trapezoids
+const SW_TRAPEZOID = [[-HALF, ONE6TH], [-HALF, -ONE6TH], [-ONE6TH, -HALF], [ONE6TH, -HALF]];
+const SE_TRAPEZOID = [[-ONE6TH, -HALF], [ONE6TH, -HALF], [HALF, -ONE6TH], [HALF, ONE6TH]];
+const NE_TRAPEZOID = [[HALF, -ONE6TH], [HALF, ONE6TH], [-ONE6TH, HALF], [ONE6TH, HALF]];
+const NW_TRAPEZOID = [[-HALF, ONE6TH], [-HALF, -ONE6TH], [ONE6TH, HALF], [-ONE6TH, HALF]];
+
+// Rectangles
+const S_RECTANGLE = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.E5];
+const E_RECTANGLE = [OFFSET.S5, OFFSET.S5E5, OFFSET.N5E5, OFFSET.N5];
+const N_RECTANGLE = [OFFSET.N5W5, OFFSET.W5, OFFSET.E5, OFFSET.N5E5];
+const W_RECTANGLE = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, OFFSET.N5];
+const EW_RECTANGEL = [[-HALF, ONE6TH], [-HALF, -ONE6TH], [HALF, -ONE6TH], [HALF, ONE6TH]];
+const SN_RECTANGEL = [[-ONE6TH, -HALF], [ONE6TH, -HALF], [ONE6TH, HALF], [-ONE6TH, HALF]];
+
+// Square
+const SQUARE = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.N5E5];
+
+// Pentagons
+const SW_PENTAGON = [OFFSET.N5W5, OFFSET.S5WE, OFFSET.S5E5, OFFSET.E, OFFSET.N];
+const SE_PENTAGON = [OFFSET.W5, OFFSET.S5WE, OFFSET.S5E5, OFFSET.N5E5, OFFSET.N];
+const NE_PENTAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.S5, OFFSET.S5E5, OFFSET.N5E5];
+const NW_PENTAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, OFFSET.E, OFFSET.N5E5];
+
+const NW_N_PENTAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.E5, [HALF, ONE6TH], OFFSET.N5];
+const NE_E_PENTAGON = [OFFSET.S5, [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const SE_S_PENTAGON = [OFFSET.W5, [-HALF, -ONE6TH], OFFSET.S5, OFFSET.S5E5, OFFSET.E5];
+const SW_W_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, OFFSET.N5, [-ONE6TH, HALF]];
+
+const NW_W_PENTAGON = [OFFSET.N5W5, OFFSET.W5, [-ONE6TH, -HALF], OFFSET.S5, OFFSET.N5];
+const NE_N_PENTAGON = [[-HALF, ONE6TH], OFFSET.W5, OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const SE_E_PENTAGON = [OFFSET.S5, OFFSET.S5E5, OFFSET.E5, [ONE6TH, HALF], OFFSET.N5];
+const SW_S_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, [HALF, -ONE6TH], OFFSET.E5]; // HERE for 0021, right edge , should it stretch from Y: (ONE6TH TO -ONE6TH), instead of Y: (0 to -ONE6TH)
+
 // Note: above wiki page invertes white/black dots for generating the code, we don't
 const ISOLINES_CODE_OFFSET_MAP = {
   // key is equal to the code of 4 vertices (invert the code specified in wiki)
@@ -95,128 +133,227 @@ const ISOBANDS_CODE_OFFSET_MAP = {
   // single triangle
 
   // 2221
-  169: [[OFFSET.S5, OFFSET.S5W5, OFFSET.W5]],
+  169: [SW_TRIANGLE],
   // 2212
-  166: [[OFFSET.E5, OFFSET.S5E5, OFFSET.S5]],
+  166: [SE_TRIANGLE],
   // 2122
-  154: [[OFFSET.N5, OFFSET.N5E5, OFFSET.E5]],
+  154: [NE_TRIANGLE],
   // 1222
-  106: [[OFFSET.N5W5, OFFSET.N5, OFFSET.W5]],
+  106: [NW_TRIANGLE],
   // 0001
-  1: [[OFFSET.S5, OFFSET.S5W5, OFFSET.W5]],
+  1: [SW_TRIANGLE],
   // 0010
-  4: [[OFFSET.E5, OFFSET.S5E5, OFFSET.S5]],
+  4: [SE_TRIANGLE],
   // 0100
-  16: [[OFFSET.N5, OFFSET.N5E5, OFFSET.E5]],
+  16: [NE_TRIANGLE],
   // 1000
-  64: [[OFFSET.N5W5, OFFSET.N5, OFFSET.W5]],
+  64: [NW_TRIANGLE],
 
   // single trapezoid
   // 2220
-  168: [[OFFSET.E3, OFFSET.N3, OFFSET.N6, OFFSET.E6]],
+  168: [SW_TRAPEZOID],
   // 2202
-  162: [[OFFSET.W6, OFFSET.N6, OFFSET.N3, OFFSET.W3]],
+  162: [SE_TRAPEZOID],
   // 2022
-  138: [[OFFSET.W6, OFFSET.N6, OFFSET.S3, OFFSET.S6]],
+  138: [NE_TRAPEZOID],
   // 0222
-  42: [[OFFSET.E3, OFFSET.E6, OFFSET.S6, OFFSET.S3]],
+  42: [NW_TRAPEZOID],
   // 0002
-  2: [[OFFSET.E3, OFFSET.N3, OFFSET.N6, OFFSET.E6]],
+  2: [SW_TRAPEZOID],
   // 0020
-  8: [[OFFSET.W6, OFFSET.N6, OFFSET.N3, OFFSET.W3]],
+  8: [SE_TRAPEZOID],
   // 0200
-  32: [[OFFSET.W6, OFFSET.N6, OFFSET.S3, OFFSET.S6]],
+  32: [NE_TRAPEZOID],
   // 2000
-  128: [[OFFSET.E3, OFFSET.E6, OFFSET.S6, OFFSET.S3]],
+  128: [NW_TRAPEZOID],
 
-  // // single rectangle
-  // // 0011
-  // 5: [[OFFSET.C, OFFSET.N5, OFFSET.S6, OFFSET.S3]],
-  // // 0110
-  // 20:
-  // // 1100
-  // 80:
-  // // 1001
-  // 65:
-  // // 2211
-  // 165:
-  // // 2112
-  // 150:
-  // // 1122
-  // 90:
-  // // 1221
-  // 105:
-  // // 2200
-  // 160:
-  // // 2002
-  // 130:
-  // // 0022
-  // 10:
-  // // 0220
-  // 40:
+  // single rectangle
+  // 0011
+  5: [S_RECTANGLE],
+  // 0110
+  20: [E_RECTANGLE],
+  // 1100
+  80: [N_RECTANGLE],
+  // 1001
+  65: [W_RECTANGLE],
+  // 2211
+  165: [S_RECTANGLE],
+  // 2112
+  150: [E_RECTANGLE],
+  // 1122
+  90: [N_RECTANGLE],
+  // 1221
+  105: [W_RECTANGLE],
+  // 2200
+  160: [EW_RECTANGEL],
+  // 2002
+  130: [SN_RECTANGEL],
+  // 0022
+  10: [EW_RECTANGEL],
+  // 0220
+  40: [SN_RECTANGEL],
 
   // single square
   // 1111
+  85: [SQUARE],
 
   // single pentagon
   // 1211
+  101: [SW_PENTAGON],
+
   // 2111
+  149: [SE_PENTAGON],
+
   // 1112
+  86: [NE_PENTAGON],
+
   // 1121
+  89: [NW_PENTAGON],
+
   // 1011
+  69: [SW_PENTAGON],
+
   // 0111
+  21: [SE_PENTAGON],
+
   // 1110
+  84: [NE_PENTAGON],
+
   // 1101
+  81: [NW_PENTAGON],
+
   // 1200
+  96: [NW_N_PENTAGON],
+
   // 0120
+  24: [NE_E_PENTAGON],
+
   // 0012
+  6: [SE_S_PENTAGON],
+
   // 2001
+  129: [SW_W_PENTAGON],
+
   // 1022
+  74: [NW_N_PENTAGON],
+
   // 2102
+  146: [NE_E_PENTAGON],
+
   // 2210
+  164: [SE_S_PENTAGON],
+
   // 0221
+  41: [SW_W_PENTAGON],
+
   // 1002
+  66: [NW_W_PENTAGON],
+
   // 2100
+  144: [NE_N_PENTAGON],
+
   // 0210
+  36: [SE_E_PENTAGON],
+
   // 0021
+  9: [SW_S_PENTAGON],
+
   // 1220
+  104: [NW_W_PENTAGON],
+
   // 0122
+  26: [NE_N_PENTAGON],
+
   // 2012
+  134: [SE_E_PENTAGON],
+
   // 2201
+  161: [SW_S_PENTAGON]
 
-  // single hexagon
-  // 0211
-  // 2110
-  // 1102
-  // 1021
-  // 2011
-  // 0112
-  // 1120
-  // 1201
-  // 2101
-  // 0121
-  // 1012
-  // 1210
-
-  // 6-sided polygons based on mean weight
-  // 0101
-  // 1010
-  // 2121
-  // 1212
-
-  // 7-sided polygons based on mean weight
-  // 2120
-  // 2021
-  // 1202
-  // 0212
-  // 0102
-  // 0201
-  // 1020
-  // 2010
-
-  // 8-sided polygons based on mean weight
-  // 2020
-  // 0202
+  // // single hexagon
+  // // 0211
+  // 37:
+  //
+  // // 2110
+  // 148:
+  //
+  // // 1102
+  // 82:
+  //
+  // // 1021
+  // 73:
+  //
+  // // 2011
+  // 133:
+  //
+  // // 0112
+  // 22:
+  //
+  // // 1120
+  // 88:
+  //
+  // // 1201
+  // 97:
+  //
+  // // 2101
+  // 145:
+  //
+  // // 0121
+  // 25:
+  //
+  // // 1012
+  // 70:
+  //
+  // // 1210
+  // 100:
+  //
+  //
+  // // 6-sided polygons based on mean weight
+  // // 0101
+  // 17:
+  //
+  // // 1010
+  // 68:
+  //
+  // // 2121
+  // 153:
+  //
+  //
+  // // 1212
+  // 102:
+  //
+  // // 7-sided polygons based on mean weight
+  // // 2120
+  // 152:
+  //
+  //
+  // // 2021
+  // 137:
+  //
+  // // 1202
+  // 98:
+  //
+  // // 0212
+  // 38:
+  //
+  // // 0102
+  // 18:
+  //
+  // // 0201
+  // 33:
+  //
+  // // 1020
+  // 72:
+  //
+  // // 2010
+  // 132:
+  //
+  // // 8-sided polygons based on mean weight
+  // // 2020
+  // 136:
+  //
+  // // 0202
+  // 34:
 };
 
 // Utility methods
@@ -304,7 +441,7 @@ export function getCode(opts) {
   if (Array.isArray(threshold)) {
     code = (top << 6) | (topRight << 4) | (right << 2) | current;
     // // _HACK_
-    // code = 106;
+    code = 130;
   }
   assert(code >= 0);
   // let codeIsValid = false;
@@ -336,6 +473,11 @@ export function getCode(opts) {
 }
 /* eslint-enable complexity, max-statements*/
 
+// ----HACK----
+let _hackIndex = 0;
+const _codeArray = Object.keys(ISOLINES_CODE_OFFSET_MAP);
+// ----HACK----
+
 // Returns intersection vertices for given cellindex
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
 export function getVertices(opts) {
@@ -352,6 +494,13 @@ export function getVertices(opts) {
     default:
       assert(false);
   };
+
+  // -HACK--
+  offsets = ISOBANDS_CODE_OFFSET_MAP[_codeArray[_hackIndex++]];
+  if (_hackIndex > _codeArray.length) {
+    _hackIndex = 0;
+  }
+  // -- HACK ---
 
   assert(offsets);
   // handle saddle cases
