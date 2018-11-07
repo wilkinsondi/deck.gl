@@ -75,7 +75,7 @@ const NE_PENTAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.S5, OFFSET.S5E5, OFFSET.N5E5
 const NW_PENTAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, OFFSET.E5, OFFSET.N5E5];
 
 const NW_N_PENTAGON = [OFFSET.N5W5, OFFSET.W5, [HALF, -ONE6TH], [HALF, ONE6TH], OFFSET.N5];
-const NE_E_PENTAGON = [[-ONE6TH, HALF], [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const NE_E_PENTAGON = [[-ONE6TH, -HALF], [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
 const SE_S_PENTAGON = [[-HALF, ONE6TH], [-HALF, -ONE6TH], OFFSET.S5, OFFSET.S5E5, OFFSET.E5];
 const SW_W_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, [ONE6TH, HALF], [-ONE6TH, HALF]];
 
@@ -554,24 +554,54 @@ let _hackIndex = 0;
 // for (const key in ISOBANDS_CODE_OFFSET_MAP) {
 //   _codeArray.push(key);
 // }
-
+let _meanCode = 0;
 const _codeArray = [
-  0, 170,
-  169, 166, 154, 106, 1, 4, 16, 64,
-  168, 162, 138, 42, 2, 8, 32, 128,
+  // 0, 170,
+  169, 166, 154, 106, /* 1, 4, 16, 64, */
+  168, 162, 138, 42, /* 2, 8, 32, 128,*/
   5, 20, 80, 65, /* 165, 150, 90, 105,*/ 160, 130, /* 10, 40,*/
   85,
   101, 149, 86, 89, /* 69, 21, 84, 81,*/ 96, 24, 6, 129, /* 74, 146, 164, 41,*/ 66, 144, 36, 9, /* 104, 26, 134, 161,*/
   37, 148, 82, 73, /* 133, 22, 88, 97,*/ 145, 25, 70, 100,
-  17, 68, 153, 102, 152, 137, 98, 38, 18, 33, 72, 132, 136, 34
+  17, 68, 153, 102,
+  152, 137, 98, 38, /* 18, 33, 72, 132,*/
+  136/*, 34*/
 ]
+const ENABLE_HACK = false;
+function getHackedOffsets(offsets) {
+  if (ENABLE_HACK) {
+    console.log(`code: ${_codeArray[_hackIndex]} : ${Math.abs(_codeArray[_hackIndex]).toString(4)} index: ${_hackIndex}`);
+    const _code = _codeArray[_hackIndex];
+    // _code = 1; // single line segment
+    // _code = 5; // two line segments
+    // _code = 169; // single polygon
+    //_code = 17; // Multi polygon
+
+    offsets = ISOBANDS_CODE_OFFSET_MAP[_code];
+
+    if (!Array.isArray(offsets)) {
+      offsets = offsets[_meanCode];
+      _meanCode++;
+      if (_meanCode > 2) {
+        _meanCode = 0;
+        _hackIndex++;
+      }
+    } else {
+      _hackIndex++;
+    }
+    if (_hackIndex >= _codeArray.length) {
+      _hackIndex = 0;
+    }
+    return offsets;
+  }
+  return offsets;
+}
 // ----HACK----
 
 // Returns intersection vertices for given cellindex
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
 export function getVertices(opts) {
   const {gridOrigin, cellSize, x, y, code, meanCode, type = CONTOUR_TYPE.ISO_LINES} = opts;
-  // let {meanCode} = opts;
   let offsets;
 
   switch(type) {
@@ -585,24 +615,6 @@ export function getVertices(opts) {
       assert(false);
   };
 
-  // -HACK--
-  /*
-  console.log(`code: ${_codeArray[_hackIndex]} : ${Math.abs(_codeArray[_hackIndex]).toString(4)} index: ${_hackIndex}`);
-  let _code = _codeArray[_hackIndex++];
-  meanCode = 2;
-
-  // _code = 1; // single line segment
-  // _code = 5; // two line segments
-  // _code = 169; // single polygon
-  //_code = 17; // Multi polygon
-
-  offsets = ISOBANDS_CODE_OFFSET_MAP[_code];
-
-  if (_hackIndex >= _codeArray.length) {
-    _hackIndex = 0;
-  }
-  // -- HACK ---
-  */
 
   assert(offsets);
   // handle saddle cases
@@ -610,6 +622,7 @@ export function getVertices(opts) {
     offsets = offsets[meanCode];
   }
 
+  offsets = getHackedOffsets(offsets);
   assert(Array.isArray(offsets));
   // console.log(`offsets: ${offsets}`);
   // Reference vertex is at top-right move to top-right corner
