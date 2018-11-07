@@ -74,15 +74,15 @@ const SE_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.N5E5, OFFSET.N5
 const NE_PENTAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.S5, OFFSET.S5E5, OFFSET.N5E5];
 const NW_PENTAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, OFFSET.E5, OFFSET.N5E5];
 
-const NW_N_PENTAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.E5, [HALF, ONE6TH], OFFSET.N5];
-const NE_E_PENTAGON = [OFFSET.S5, [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
-const SE_S_PENTAGON = [OFFSET.W5, [-HALF, -ONE6TH], OFFSET.S5, OFFSET.S5E5, OFFSET.E5];
-const SW_W_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, OFFSET.N5, [-ONE6TH, HALF]];
+const NW_N_PENTAGON = [OFFSET.N5W5, OFFSET.W5, [HALF, -ONE6TH], [HALF, ONE6TH], OFFSET.N5];
+const NE_E_PENTAGON = [[-ONE6TH, HALF], [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const SE_S_PENTAGON = [[-HALF, ONE6TH], [-HALF, -ONE6TH], OFFSET.S5, OFFSET.S5E5, OFFSET.E5];
+const SW_W_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, [ONE6TH, HALF], [-ONE6TH, HALF]];
 
-const NW_W_PENTAGON = [OFFSET.N5W5, OFFSET.W5, [-ONE6TH, -HALF], OFFSET.S5, OFFSET.N5];
-const NE_N_PENTAGON = [[-HALF, ONE6TH], OFFSET.W5, OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
-const SE_E_PENTAGON = [OFFSET.S5, OFFSET.S5E5, OFFSET.E5, [ONE6TH, HALF], OFFSET.N5];
-const SW_S_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, [HALF, -ONE6TH], OFFSET.E5]; // HERE for 0021, right edge , should it stretch from Y: (ONE6TH TO -ONE6TH), instead of Y: (0 to -ONE6TH)
+const NW_W_PENTAGON = [OFFSET.N5W5, OFFSET.W5, [-ONE6TH, -HALF], [ONE6TH, -HALF], OFFSET.N5];
+const NE_N_PENTAGON = [[-HALF, ONE6TH], [-HALF, -ONE6TH], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const SE_E_PENTAGON = [OFFSET.S5, OFFSET.S5E5, OFFSET.E5, [ONE6TH, HALF], [-ONE6TH, HALF]];
+const SW_S_PENTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, [HALF, -ONE6TH], [HALF, ONE6TH]];
 
 // Hexagon
 const S_HEXAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5E5, OFFSET.E5, [ONE6TH, HALF], [-ONE6TH, HALF]];
@@ -515,7 +515,7 @@ export function getCode(opts) {
   if (Array.isArray(threshold)) {
     code = (top << 6) | (topRight << 4) | (right << 2) | current;
     // // _HACK_
-    code = 130;
+    // code = 130;
   }
   assert(code >= 0);
   // let codeIsValid = false;
@@ -570,8 +570,8 @@ const _codeArray = [
 // Returns intersection vertices for given cellindex
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
 export function getVertices(opts) {
-  const {gridOrigin, cellSize, x, y, code, type = CONTOUR_TYPE.ISO_LINES} = opts;
-  let {meanCode} = opts;
+  const {gridOrigin, cellSize, x, y, code, meanCode, type = CONTOUR_TYPE.ISO_LINES} = opts;
+  // let {meanCode} = opts;
   let offsets;
 
   switch(type) {
@@ -586,6 +586,7 @@ export function getVertices(opts) {
   };
 
   // -HACK--
+  /*
   console.log(`code: ${_codeArray[_hackIndex]} : ${Math.abs(_codeArray[_hackIndex]).toString(4)} index: ${_hackIndex}`);
   let _code = _codeArray[_hackIndex++];
   meanCode = 2;
@@ -601,6 +602,7 @@ export function getVertices(opts) {
     _hackIndex = 0;
   }
   // -- HACK ---
+  */
 
   assert(offsets);
   // handle saddle cases
@@ -609,7 +611,7 @@ export function getVertices(opts) {
   }
 
   assert(Array.isArray(offsets));
-  console.log(`offsets: ${offsets}`);
+  // console.log(`offsets: ${offsets}`);
   // Reference vertex is at top-right move to top-right corner
   assert(x >= -1);
   assert(y >= -1);
