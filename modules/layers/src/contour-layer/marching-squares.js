@@ -92,6 +92,15 @@ const W_HEXAGON = [OFFSET.N5W5, OFFSET.S5W5, OFFSET.S5, [HALF, -ONE6TH], [HALF, 
 const SW_NE_HEXAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
 const NW_SE_HEXAGON = [OFFSET.N5W5, OFFSET.W5, OFFSET.S5, OFFSET.S5E5, OFFSET.E5, OFFSET.N5];
 
+// Heptagon (7-sided)
+const NE_HEPTAGON = [[-HALF, ONE6TH], [-HALF, -ONE6TH], [-ONE6TH, -HALF], [ONE6TH, -HALF], OFFSET.E5, OFFSET.N5E5, OFFSET.N5];
+const SW_HEPTAGON = [OFFSET.W5, OFFSET.S5W5, OFFSET.S5, [HALF, -ONE6TH], [HALF, ONE6TH], [ONE6TH, HALF], [-ONE6TH, HALF]];
+const NW_HEPTAGON = [OFFSET.N5W5, OFFSET.W5, [-ONE6TH, -HALF], [ONE6TH, -HALF], [HALF, -ONE6TH], [HALF, ONE6TH], OFFSET.N5];
+const SE_HEPTAGON = [[-HALF, ONE6TH], [-HALF, -ONE6TH], OFFSET.S5, OFFSET.S5E5, OFFSET.E5, [ONE6TH, HALF], [-ONE6TH, HALF]];
+
+// Octagon
+const OCTAGON = [[-HALF, ONE6TH], [-HALF, -ONE6TH], [-ONE6TH, -HALF], [ONE6TH, -HALF], [HALF, -ONE6TH], [HALF, ONE6TH], [ONE6TH, HALF], [-ONE6TH, HALF]];
+
 // Note: above wiki page invertes white/black dots for generating the code, we don't
 const ISOLINES_CODE_OFFSET_MAP = {
   // key is equal to the code of 4 vertices (invert the code specified in wiki)
@@ -313,55 +322,112 @@ const ISOBANDS_CODE_OFFSET_MAP = {
   70: [NW_SE_HEXAGON],
 
   // 1210
-  100: [NW_SE_HEXAGON]
+  100: [NW_SE_HEXAGON],
 
 
-  // // 6-sided polygons based on mean weight
-  // // 0101
-  // 17:
-  //
-  // // 1010
-  // 68:
-  //
-  // // 2121
-  // 153:
-  //
-  //
-  // // 1212
-  // 102:
-  //
-  // // 7-sided polygons based on mean weight
-  // // 2120
-  // 152:
-  //
-  //
-  // // 2021
-  // 137:
-  //
-  // // 1202
-  // 98:
-  //
-  // // 0212
-  // 38:
-  //
-  // // 0102
-  // 18:
-  //
-  // // 0201
-  // 33:
-  //
-  // // 1020
-  // 72:
-  //
-  // // 2010
-  // 132:
-  //
-  // // 8-sided polygons based on mean weight
-  // // 2020
-  // 136:
-  //
-  // // 0202
-  // 34:
+  // 6-sided polygons based on mean weight
+  // NOTE: merges mean value codes for extreme changes (as per above Wiki doc)
+  // 0101
+  17: {
+    0: [SW_TRIANGLE, NE_TRIANGLE],
+    1: [SW_NE_HEXAGON],
+    2: [SW_NE_HEXAGON]
+  },
+
+  // 1010
+  68: {
+    0: [NW_TRIANGLE, SE_TRIANGLE],
+    1: [NW_SE_HEXAGON],
+    2: [NW_SE_HEXAGON]
+  },
+
+  // 2121
+  153: {
+    0: [SW_NE_HEXAGON],
+    1: [SW_NE_HEXAGON],
+    2: [SW_TRIANGLE, NE_TRIANGLE]
+  },
+
+
+  // 1212
+  102: {
+    0: [NW_SE_HEXAGON],
+    1: [NW_SE_HEXAGON],
+    2: [NW_TRIANGLE, SE_TRIANGLE]
+  },
+
+  // 7-sided polygons based on mean weight
+  // 2120
+  152: {
+    0: [NE_HEPTAGON],
+    1: [NE_HEPTAGON],
+    2: [SW_TRAPEZOID, NE_TRIANGLE]
+  },
+
+
+  // 2021
+  137: {
+    0: [SW_HEPTAGON],
+    1: [SW_HEPTAGON],
+    2: [SW_TRIANGLE, NE_TRAPEZOID]
+  },
+
+  // 1202
+  98: {
+    0: [NW_HEPTAGON],
+    1: [NW_HEPTAGON],
+    2: [NW_TRIANGLE, SE_TRAPEZOID]
+  },
+
+  // 0212
+  38: {
+    0: [SE_HEPTAGON],
+    1: [SE_HEPTAGON],
+    2: [SE_TRIANGLE, NW_TRAPEZOID]
+  },
+
+  // 0102
+  18: {
+    0: [SW_TRAPEZOID, NE_TRIANGLE],
+    1: [NE_HEPTAGON],
+    2: [NE_HEPTAGON]
+  },
+
+  // 0201
+  33: {
+    0: [SW_TRIANGLE, NE_TRAPEZOID],
+    1: [SW_HEPTAGON],
+    2: [SW_HEPTAGON]
+  },
+
+  // 1020
+  72: {
+    0: [NW_TRIANGLE, SE_TRAPEZOID],
+    1: [NW_HEPTAGON],
+    2: [NW_HEPTAGON]
+  },
+
+  // 2010
+  132: {
+    0: [SE_TRIANGLE, NW_TRAPEZOID],
+    1: [SE_HEPTAGON],
+    2: [SE_HEPTAGON]
+  },
+
+  // 8-sided polygons based on mean weight
+  // 2020
+  136: {
+    0: [NW_TRAPEZOID, SE_TRAPEZOID],
+    1: [OCTAGON],
+    2: [SW_TRAPEZOID, NE_TRAPEZOID]
+  },
+
+  // 0202
+  34: {
+    0: [NE_TRAPEZOID, SW_TRAPEZOID],
+    1: [OCTAGON],
+    2: [NW_TRAPEZOID, SE_TRAPEZOID]
+  }
 };
 
 // Utility methods
@@ -496,14 +562,16 @@ const _codeArray = [
   5, 20, 80, 65, /* 165, 150, 90, 105,*/ 160, 130, /* 10, 40,*/
   85,
   101, 149, 86, 89, /* 69, 21, 84, 81,*/ 96, 24, 6, 129, /* 74, 146, 164, 41,*/ 66, 144, 36, 9, /* 104, 26, 134, 161,*/
-  37, 148, 82, 73, /* 133, 22, 88, 97,*/ 145, 25, 70, 100
+  37, 148, 82, 73, /* 133, 22, 88, 97,*/ 145, 25, 70, 100,
+  17, 68, 153, 102, 152, 137, 98, 38, 18, 33, 72, 132, 136, 34
 ]
 // ----HACK----
 
 // Returns intersection vertices for given cellindex
 // [x, y] refers current marchng cell, reference vertex is always top-right corner
 export function getVertices(opts) {
-  const {gridOrigin, cellSize, x, y, code, meanCode, type = CONTOUR_TYPE.ISO_LINES} = opts;
+  const {gridOrigin, cellSize, x, y, code, type = CONTOUR_TYPE.ISO_LINES} = opts;
+  let {meanCode} = opts;
   let offsets;
 
   switch(type) {
@@ -519,7 +587,12 @@ export function getVertices(opts) {
 
   // -HACK--
   console.log(`code: ${_codeArray[_hackIndex]} : ${Math.abs(_codeArray[_hackIndex]).toString(4)} index: ${_hackIndex}`);
-  offsets = ISOBANDS_CODE_OFFSET_MAP[_codeArray[_hackIndex++]];
+  let _code = _codeArray[_hackIndex++];
+  meanCode = 0;
+
+  _code = 17;
+
+  offsets = ISOBANDS_CODE_OFFSET_MAP[_code];
   if (_hackIndex >= _codeArray.length) {
     _hackIndex = 0;
   }
