@@ -42,9 +42,11 @@ export function generateContours({
           // const triangles = getTriangles(opts);
           opts.type = CONTOUR_TYPE.ISO_BANDS;
           const polygons = getVertices(opts);
-          contourTriangles.push({
-            vertices: polygons,
-            threshold
+          polygons.forEach(polygon => {
+            contourTriangles.push({
+              vertices: polygon,
+              threshold
+            });
           });
         } else {
           // Get the intersection vertices based on MarchingSquares code.

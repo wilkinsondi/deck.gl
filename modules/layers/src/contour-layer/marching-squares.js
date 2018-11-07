@@ -588,11 +588,15 @@ export function getVertices(opts) {
   // -HACK--
   console.log(`code: ${_codeArray[_hackIndex]} : ${Math.abs(_codeArray[_hackIndex]).toString(4)} index: ${_hackIndex}`);
   let _code = _codeArray[_hackIndex++];
-  meanCode = 0;
+  meanCode = 2;
 
-  _code = 17;
+  // _code = 1; // single line segment
+  // _code = 5; // two line segments
+  // _code = 169; // single polygon
+  //_code = 17; // Multi polygon
 
   offsets = ISOBANDS_CODE_OFFSET_MAP[_code];
+
   if (_hackIndex >= _codeArray.length) {
     _hackIndex = 0;
   }
@@ -605,7 +609,7 @@ export function getVertices(opts) {
   }
 
   assert(Array.isArray(offsets));
-
+  console.log(`offsets: ${offsets}`);
   // Reference vertex is at top-right move to top-right corner
   assert(x >= -1);
   assert(y >= -1);
@@ -660,6 +664,8 @@ export function getVertices(opts) {
       assert(false);
     break;
   }
+  console.log(`vertices: ${results}`);
+
   return results;
 }
 
