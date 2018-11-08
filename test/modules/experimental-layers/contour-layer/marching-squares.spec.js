@@ -174,101 +174,74 @@ const GETCODE_TESTS = [
     cellWeights: [3, 0, 9, 30],
     threshold: [2, 9],
     code: 97
-  }
-  //
-  // // non zero cellIndex
-  // {
-  //   cellWeights: [
-  //     // ----------------
-  //     // |  5 | 10 | 10 | => row-2
-  //     // ----------------
-  //     // | 5  |  5 |  5 | => row-1
-  //     // ----------------
-  //     // | 5  |  5 |  5 | => row-0
-  //     // ---------------
-  //     // row-0
-  //     5,
-  //     5,
-  //     5,
-  //     // row-1
-  //     5,
-  //     5,
-  //     5,
-  //     // row-2
-  //     5,
-  //     10,
-  //     10
-  //   ],
-  //   gridSize: [3, 3],
-  //   x: 1,
-  //   y: 1,
-  //   code: 12
-  // },
-  // {
-  //   cellWeights: [
-  //     // row-0
-  //     5,
-  //     5,
-  //     5,
-  //     // row-1
-  //     10,
-  //     5,
-  //     5,
-  //     // row-2
-  //     10,
-  //     5,
-  //     5
-  //   ],
-  //   gridSize: [3, 3],
-  //   x: 0,
-  //   y: 1,
-  //   code: 9
-  // },
-  //
-  // // saddle cases
-  // {
-  //   cellWeights: [
-  //     // row-0
-  //     5,
-  //     5,
-  //     5,
-  //     // row-1
-  //     5,
-  //     1,
-  //     6,
-  //     // row-2
-  //     5,
-  //     6,
-  //     1
-  //   ],
-  //   gridSize: [3, 3],
-  //   x: 1,
-  //   y: 1,
-  //   code: 10,
-  //   meanCode: 0
-  // },
-  // {
-  //   cellWeights: [
-  //     // row-0
-  //     5,
-  //     5,
-  //     5,
-  //     // row-1
-  //     5,
-  //     5,
-  //     10,
-  //     // row-2
-  //     5,
-  //     10,
-  //     5
-  //   ],
-  //   gridSize: [3, 3],
-  //   x: 1,
-  //   y: 1,
-  //   code: 10,
-  //   meanCode: 1
-  // },
+  },
 
+  // non zero cellIndex
+  {
+    // 0122
+    cellWeights: [
+      // ----------------
+      // |  5 | 5  | 10 | => row-2
+      // ----------------
+      // | 5  | 15 | 15 | => row-1
+      // ----------------
+      // | 5  |  5 |  5 | => row-0
+      // ---------------
+      // row-0
+      5,
+      5,
+      5,
+      // row-1
+      5,
+      15,
+      15,
+      // row-2
+      5,
+      5,
+      10
+    ],
+    threshold: [6, 11],
+    gridSize: [3, 3],
+    x: 1,
+    y: 1,
+    code: 26
+  },
+  {
+    // 2110
+    cellWeights: [
+      // row-0
+      5,
+      1,
+      6,
+      // row-1
+      5,
+      10,
+      6,
+      // row-2
+      5,
+      5,
+      10
+    ],
+    threshold: [6, 6],
+    gridSize: [3, 3],
+    x: 1,
+    y: 0,
+    code: 148
+  },
+
+  // saddle cases
+  {
+    // 1010
+    cellWeights: [5, 6, 6, 5],
+    threshold: [6, 7],
+    code: 68
+  },
+  // 2020
+  {
+    cellWeights: [5, 10, 10, 5],
+    threshold: [6, 9],
+    code: 136
+  }
 ];
 
 const GETVERTEX_TESTS = [
@@ -334,13 +307,86 @@ const GETVERTEX_TESTS = [
 
   // ISO-BANDS
   {
+    // 2222
     gridOrigin: [100, 200],
-    code: 154,
-    // REF
-    vertices: [[[110, 230], [115, 230], [115, 220]]],
+    code: 170,
+    vertices: [],
     type: CONTOUR_TYPE.ISO_BANDS
   },
-
+  {
+    // 2122
+    name: 'single-triangle',
+    gridOrigin: [100, 200],
+    code: 154,
+    vertices: [[[115, 220], [115, 230], [110, 230]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  },
+  {
+    // 0020
+    name: 'single-trapezoid',
+    gridOrigin: [100, 200],
+    code: 8,
+    cellSize: [12, 24],
+    vertices: [[[110, 212], [114, 212], [118, 220], [118, 228]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  },
+  {
+    // 0220
+    name: 'single-rectangle',
+    gridOrigin: [100, 200],
+    code: 40,
+    cellSize: [12, 24],
+    vertices: [[[110, 212], [114, 212], [114, 236], [110, 236]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  },
+  {
+    // 1111
+    name: 'single-rectangle',
+    gridOrigin: [100, 200],
+    code: 85,
+    cellSize: [12, 24],
+    vertices: [[[106, 236], [106, 212], [118, 212], [118, 236]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  },
+  {
+    // 2001
+    name: 'single-pentagon',
+    gridOrigin: [100, 200],
+    code: 129,
+    cellSize: [12, 24],
+    vertices: [[[106, 224], [106, 212], [112, 212], [114, 236], [110, 236]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  },
+  {
+    // 0211
+    name: 'single-hexagon',
+    gridOrigin: [100, 200],
+    code: 37,
+    cellSize: [12, 24],
+    vertices: [[[106, 224], [106, 212], [118, 212], [118, 224], [114, 236], [110, 236]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  },
+  // saddle cases
+  {
+    // 1010
+    name: 'saddle-6-sided-mean-0',
+    gridOrigin: [100, 200],
+    code: 68,
+    meanCode: 0,
+    cellSize: [12, 24],
+    vertices: [[[106, 236], [106, 224], [112, 236]], [[112, 212], [118, 212], [118, 224]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  },
+  {
+    // 1010
+    name: 'saddle-6-sided-mean-0',
+    gridOrigin: [100, 200],
+    code: 68,
+    meanCode: 2, // merged with mean-code 1
+    cellSize: [12, 24],
+    vertices: [[[106, 236], [106, 224], [112, 212], [118, 212], [118, 224], [112, 236]]],
+    type: CONTOUR_TYPE.ISO_BANDS
+  }
 ];
 
 test('MarchingSquares#getCode', t => {
@@ -375,7 +421,7 @@ test('MarchingSquares#getVertices', t => {
       gridOrigin: testCase.gridOrigin,
       x: testCase.x || x,
       y: testCase.y || y,
-      cellSize,
+      cellSize: testCase.cellSize || cellSize,
       code: testCase.code,
       meanCode: testCase.meanCode,
       type: testCase.type || CONTOUR_TYPE.ISO_LINES

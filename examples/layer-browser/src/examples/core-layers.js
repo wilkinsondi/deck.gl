@@ -250,9 +250,10 @@ const ContourLayerExample = {
     getPosition: d => d.COORDINATES,
     gpuAggregation: true,
     contours: [
-      {threshold: 1, color: [255, 0, 0], strokeWidth: 4},
-      {threshold: 5, color: [0, 255, 0], strokeWidth: 2},
-      {threshold: 15, color: [0, 0, 255]}
+      // {threshold: 1, color: [255, 0, 0], strokeWidth: 4},
+      // {threshold: 5, color: [0, 255, 0], strokeWidth: 2}
+      // {threshold: 15, color: [0, 0, 255]},
+      {threshold: [5, 50], color: [255, 0, 0], strokeWidth: 4}
     ]
   }
 };

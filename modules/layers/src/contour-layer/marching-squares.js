@@ -490,7 +490,7 @@ export function getCode(opts) {
   }
 
   // RIGHT
-  if (isRightBoundary) {
+  if (isRightBoundary || isBottomBoundary) {
     codes.right = 0;
   } else {
     weights.right = cellWeights[y * width + x + 1];
@@ -543,6 +543,8 @@ export function getCode(opts) {
     });
   }
 
+  console.log(`weights: ${JSON.stringify(weights)} codes: ${JSON.stringify(codes)} isBoundary: ${isBoundary}`);
+  console.log(`x: ${x} y: ${y} isLeftBoundary: ${isLeftBoundary} isTopBoundary: ${isTopBoundary} isRightBoundary: ${isRightBoundary} isBottomBoundary: ${isBottomBoundary}`);
   return {code, meanCode};
 }
 /* eslint-enable complexity, max-statements*/
@@ -679,7 +681,6 @@ export function getVertices(opts) {
       assert(false);
     break;
   }
-  console.log(`vertices: ${results}`);
 
   return results;
 }
