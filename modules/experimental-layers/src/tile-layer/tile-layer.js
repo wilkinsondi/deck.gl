@@ -54,7 +54,9 @@ export default class TileLayer extends CompositeLayer {
 
   getPickingInfo({info, sourceLayer}) {
     info.sourceLayer = sourceLayer;
-    info.tiles = this.state.tiles;
+    const {tileX, tileY, tileZ} = sourceLayer.props;
+    const tile = this.state.tiles.find(t => t.x === tileX && t.y === tileY && t.z === tileZ);
+    info.tile = tile;
     return info;
   }
 
