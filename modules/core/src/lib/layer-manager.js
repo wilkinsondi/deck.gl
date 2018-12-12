@@ -401,9 +401,8 @@ export default class LayerManager {
   // Get the pixel ratio
   _getPixelRatio() {
     /* global window */
-    return this.useDevicePixels && typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
-  };
-
+    return this.useDevicePixels && typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  }
 
   // Match all layers, checking for caught errors
   // To avoid having an exception in one layer disrupt other layers
