@@ -437,15 +437,6 @@ export const docPages = generatePath([
           {
             name: 'TextLayer',
             content: getDocUrl('layers/text-layer.md')
-          },
-          {
-            name: 'S2 Layers (Experimental)',
-            children: [
-              {
-                name: 'S2Layer',
-                content: getDocUrl('api-reference/s2-layers/s2-layer.md')
-              }
-            ]
           }
         ]
       },
