@@ -92,6 +92,8 @@ export {
   pointToDensityGridData as _pointToDensityGridData
 } from './experimental/utils/gpu-grid-aggregation/grid-aggregation-utils';
 
+export {extendLayer, LayerExtension} from './lib/layer-extension';
+
 // Exports for layers
 // Experimental Features may change in minor version bumps, use at your own risk)
 export const experimental = {
