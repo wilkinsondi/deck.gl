@@ -42,7 +42,7 @@ export class App extends PureComponent {
   }
 
   _renderLayers() {
-    const {autoHighlight = true, highlightColor} = this.props;
+    const {autoHighlight = true, highlightColor = [60, 60, 60, 40]} = this.props;
 
     return [
       new TileLayer({

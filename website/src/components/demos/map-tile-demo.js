@@ -5,16 +5,7 @@ import {App, INITIAL_VIEW_STATE} from 'website-examples/map-tile/app';
 export default class LineDemo extends Component {
   static get parameters() {
     return {
-      autoHighlight: {displayName: 'Enable autoHighlight', type: 'checkbox', value: true},
-      highlightColor: {displayName: 'Highlight Color', type: 'color', value: [60, 60, 60]},
-      highlightColorOpacity: {
-        displayName: 'Highlight Color Opacity',
-        type: 'range',
-        value: 40,
-        step: 1,
-        min: 0,
-        max: 255
-      }
+      autoHighlight: {displayName: 'Enable autoHighlight', type: 'checkbox', value: true}
     };
   }
 
@@ -50,17 +41,6 @@ export default class LineDemo extends Component {
   render() {
     // eslint-disable-next-line no-unused-vars
     const {params, data, ...otherProps} = this.props;
-    const highlightColor = [
-      ...params.highlightColor.value.slice(0, 3),
-      params.highlightColorOpacity.value
-    ];
-
-    return (
-      <App
-        {...otherProps}
-        autoHighlight={params.autoHighlight.value}
-        highlightColor={highlightColor}
-      />
-    );
+    return <App {...otherProps} autoHighlight={params.autoHighlight.value} />;
   }
 }
